@@ -1,0 +1,33 @@
+proxies:
+  - name: SERVER 01
+    server: example.com
+    port: 443
+    type: vmess
+    uuid: 
+    alterId: 0
+    cipher: auto
+    tls: true
+    skip-cert-verify: true
+    servername: example.com
+    network: ws
+    ws-opts: 
+      path: /vmess
+      headers: 
+        Host: example.com
+    udp: true
+  - name: SERVER 02
+    server: example.com
+    port: 443
+    type: vless
+    uuid: 
+    alterId: 0
+    cipher: auto
+    tls: true
+    skip-cert-verify: true
+    servername: example.com
+    network: ws
+    ws-opts: 
+      path: /vmess
+      headers: 
+        Host: example.com
+    udp: true

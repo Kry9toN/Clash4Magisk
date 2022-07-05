@@ -1,0 +1,122 @@
+#!/system/bin/sh
+
+. /data/adb/clash/scripts/path.sc
+
+start_clash() {
+    rm -f ${CLASH_RUN_PATH}/kernel.log
+
+    if [ "${ipv6}" = "false" ] ; then
+        for net in /proc/sys/net/ipv6/conf/{wlan*,*data*} ; do
+            echo ${net} | grep -q wlan
+            if [ $? -eq 0 ] ; then
+                echo 0 > ${net}/accept_ra
+            fi
+            echo 1 > ${net}/disable_ipv6
+        done
+    else
+        for net in /proc/sys/net/ipv6/conf/{wlan*,*data*} ; do
+            echo ${net} | grep -q wlan
+            if [ $? -eq 0 ] ; then
+                echo 1 > ${net}/accept_ra
+            fi
+            echo 0 > ${net}/disable_ipv6
+        done
+    fi
+
+    pid=`cat ${CLASH_PID_FILE} 2> /dev/null`
+    if (cat /proc/${pid}/cmdline | grep -q clash) ; then
+        echo "[info] : detected clash has started. on off the magisk module" >> ${CFM_LOGS_FILE}
+        exit 1
+    fi
+    echo -e "${DATE_DAY}" > ${CFM_LOGS_FILE}
+    ${CLASH_BIN_PATH} -v  >> ${CFM_LOGS_FILE}
+    if [ -f "${CLASH_BIN_PATH}" ] ; then
+        mkdir -p ${CLASH_RUN_PATH}
+        chown ${CLASH_USER_GROUP} ${CLASH_BIN_PATH}
+        chmod ${CLASH_PERMISSIONS} ${CLASH_BIN_PATH}
+        ${BINARY_DIR}/setcap 'cap_net_admin,cap_net_raw+ep' ${CLASH_BIN_PATH}
+
+        ${BUSYBOX_PATH} crontab -c ${CLASH_RUN_PATH} -r
+        touch ${CLASH_RUN_PATH}/root
+        chmod 0600 ${CLASH_RUN_PATH}/root
+
+        echo "*/1 * * * * ${SCRIPTS_DIR}/clash.tool -k" >> ${CLASH_RUN_PATH}/root \
+        && echo "[info] : DNS Open." >> ${CFM_LOGS_FILE}
+
+#        echo "${UPDATE_INTERVAL} ${SCRIPTS_DIR}/clash.tool -s" > ${CLASH_RUN_PATH}/root \
+#        && echo "[info] : automatic subscription time activated." >> ${CFM_LOGS_FILE}
+
+        if [ "${FILTER_LOCAL}" = "true" ] ; then
+            com="${SCRIPTS_DIR}/clash.tool -m ; sleep 10 ;${SCRIPTS_DIR}/clash.tool -m ; sleep 10; ${SCRIPTS_DIR}/clash.tool -m ;sleep 10; ${SCRIPTS_DIR}/clash.tool -m;sleep 10;${SCRIPTS_DIR}/clash.tool -m ; sleep 10;${SCRIPTS_DIR}/clash.tool -m"
+            echo "*/1 * * * * ${com}" >> ${CLASH_RUN_PATH}/root && echo "[info] : local ip auto bypass enabled." >> ${CFM_LOGS_FILE}
+        fi
+    else
+        echo "[error] : kernel clash not found." >> ${CFM_LOGS_FILE}
+        exit 1
+    fi
+
+    if [[ -f ${TEMP_CONFIG} ]] ; then
+        rm -f ${TEMP_CONFIG}
+    fi
+
+    if [[ "$USE_AUTO_MERGE" == "true" ]]; then
+    echo "[info] : merge template & proxies" >> ${CFM_LOGS_FILE}
+        if [[ -f ${TEMPLATE_FILE} ]]; then
+            if [[ -f ${PROXIES_FILE} ]]; then
+                cp -f ${TEMPLATE_FILE} ${TEMP_CONFIG} && echo "\n" >> ${TEMP_CONFIG}
+                sed -n -E '/^proxies:$/,$p' ${PROXIES_FILE} >> ${TEMP_CONFIG}
+                sed -i '/^[  ]*$/d' ${TEMP_CONFIG}
+                mv -f ${TEMP_CONFIG} ${CLASH_CONFIG_FILE}
+            fi
+        fi
+    fi
+
+    chown ${CLASH_USER_GROUP} ${CLASH_CONFIG_FILE} && chmod 0644 ${CLASH_CONFIG_FILE}
+    if [ -f ${CLASH_CONFIG_FILE} ] ; then
+        if ${CLASH_BIN_PATH} -d ${CLASH_CONFIG_DIR} -t -f ${CLASH_CONFIG_FILE} | grep -q 'scripts success...'; then
+        	if ${CLASH_BIN_PATH} -d ${CLASH_CONFIG_DIR} -t -f ${CLASH_CONFIG_FILE} | grep -q 'test is successful'; then
+        	    echo "[info] : test config success" >> ${CFM_LOGS_FILE}
+        	    if [[ "${SHOW_KERNEL_LOG}" == "true" ]]; then
+                    nohup ${BUSYBOX_PATH} setuidgid 0:3005 ${CLASH_BIN_PATH} -d ${CLASH_CONFIG_DIR} -f ${CLASH_CONFIG_FILE} &>> ${CLASH_RUN_PATH}/kernel.log &
+                else
+                    nohup ${BUSYBOX_PATH} setuidgid 0:3005 ${CLASH_BIN_PATH} -d ${CLASH_CONFIG_DIR} -f ${CLASH_CONFIG_FILE} > /dev/null 2>&1 &
+                fi
+                echo -n $! > ${CLASH_PID_FILE}
+                echo "[info] : clash started." >> ${CFM_LOGS_FILE}
+                rm -f ${CLASH_DATA_DIR}/config_error.log
+        	else
+        		${CLASH_BIN_PATH} -d ${CLASH_CONFIG_DIR} -t -f ${CLASH_CONFIG_FILE} >> ${CLASH_DATA_DIR}/config_error.log
+        		echo "[err] : load config failed check log at ${CLASH_DATA_DIR}" >> ${CFM_LOGS_FILE}
+        		touch ${MODUL_DIR}/disable
+           		exit 1
+            fi
+        else
+        	echo "[err] : load kernel & scripts error" >> ${CFM_LOGS_FILE}
+        	echo "[warn] : dont edit scripts" >> ${CFM_LOGS_FILE}
+        	touch ${MODUL_DIR}/disable
+        	exit 1
+        fi
+    fi
+}
+
+stop_clash() {
+    kill -15 `cat ${CLASH_PID_FILE}` && rm -f ${CLASH_PID_FILE} && rm -f ${CLASH_RUN_PATH}/appuid.list && rm -f ${CLASH_RUN_PATH}/root
+    echo "[info] : clash stopped." >> ${CFM_LOGS_FILE}
+    if [[ "$USE_AUTO_MERGE" == "true" ]]; then
+        rm -f ${CLASH_CONFIG_FILE}
+    fi
+}
+
+while getopts ":sk" signal ; do
+    case ${signal} in
+        s)
+            start_clash
+            ;;
+        k)
+            stop_clash
+            ;;
+        ?)
+            echo ""
+            ;;
+    esac
+done

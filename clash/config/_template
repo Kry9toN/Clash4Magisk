@@ -1,0 +1,26 @@
+mode: rule
+allow-lan: true
+log-level: silent
+bind-address: "*"
+external-controller: 0.0.0.0:9090
+external-ui: dashboard
+# tcp-concurent: true
+# unified-delay: true
+# ipv6: true
+# geodata-mode: true
+# secret: ""
+dns:
+  enable: true
+  ipv6: false
+  prefer-h3: true # Start DOH to use http/3 first
+  enhanced-mode: fake-ip
+  fake-ip-range: 28.0.0.0/8
+  use-hosts: true
+  listen: 0.0.0.0:1053
+  nameserver: [ https://doh.pub/dns-query, https://dns.alidns.com/dns-query ]
+  fallback: [ https://dns.google/dns-query, https://cloudflare-dns.com/dns-query, tls://1.1.1.1:853, tls://8.8.8.8:853 ]
+  fallback-filter:
+    geoip: false
+    ipcidr: [ 0.0.0.0/8, 10.0.0.0/8, 100.64.0.0/10, 127.0.0.0/8, 169.254.0.0/16, 172.16.0.0/12, 192.0.0.0/24, 192.0.2.0/24, 192.88.99.0/24, 192.168.0.0/16, 198.18.0.0/15, 198.51.100.0/24, 203.0.113.0/24, 224.0.0.0/4, 240.0.0.0/4, 255.255.255.255/32 ]
+    domain: [ "+.google.com", "+.facebook.com", "+.youtube.com", "+.githubusercontent.com", "+.whatsaap.net", "+.itt9.com" ]
+tproxy-port: 7895

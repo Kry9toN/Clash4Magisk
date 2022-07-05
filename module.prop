@@ -1,6 +1,7 @@
-id=ClashForMagisk
-name=Clash for Magisk
-version=v1.12.6
-versionCode=20220627
-author=t@amarin
-description=Clash core with service scripts for Android
+id=ClashMeta4Magisk
+name=Clash [Meta] 4 Magisk
+version=1.12.2
+versionCode=20220705
+author=• Riffchz •
+description= Clash meta core with service scripts for Android 
+updateJson=https://raw.githubusercontent.com/riffchz/ClashforMagisk/myalpha/update.json

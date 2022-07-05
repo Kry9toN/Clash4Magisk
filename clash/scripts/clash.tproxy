@@ -1,0 +1,185 @@
+#!/system/bin/sh
+
+. /data/adb/clash/scripts/path.sc
+
+create_rule_rules() {
+    ip rule add fwmark ${mark_id} table ${table_id} pref ${pref_id}
+    ip route add local default dev lo table ${table_id}
+}
+
+flush_rule_rules() {
+    ip rule del fwmark ${mark_id} table ${table_id}
+    ip route flush table ${table_id}
+}
+
+create_mangle_prerouting_chain() {
+    ${IPTABLES_WAIT} -t mangle -N CLASH_PRE
+
+    ${IPTABLES_WAIT} -t mangle -A CLASH_PRE -p tcp -j TPROXY --on-port ${CLASH_TPROXY_PORT} --tproxy-mark ${mark_id}
+    ${IPTABLES_WAIT} -t mangle -A CLASH_PRE -p udp ! --dport 53 -j TPROXY --on-port ${CLASH_TPROXY_PORT} --tproxy-mark ${mark_id}
+}
+
+create_mangle_output_chain() {
+    ${IPTABLES_WAIT} -t mangle -N CLASH_OUT
+
+    ${IPTABLES_WAIT} -t mangle -A CLASH_OUT -p tcp -j MARK --set-mark ${mark_id}
+    ${IPTABLES_WAIT} -t mangle -A CLASH_OUT -p udp -j MARK --set-mark ${mark_id}
+}
+
+create_mangle_prerouting_filter() {
+    ${IPTABLES_WAIT} -t mangle -N FILTER_PRE_CLASH
+
+    for subnet in ${RESERVED_IP[*]} ; do
+        ${IPTABLES_WAIT} -t mangle -A FILTER_PRE_CLASH -d ${subnet} -j ACCEPT
+    done
+
+    ${IPTABLES_WAIT} -t mangle -A FILTER_PRE_CLASH -j CLASH_PRE
+}
+
+create_mangle_output_filter() {
+    ${SCRIPTS_DIR}/clash.tool -f
+
+    ${IPTABLES_WAIT} -t mangle -N FILTER_OUT_CLASH
+
+    for subnet in ${RESERVED_IP[*]} ; do
+        ${IPTABLES_WAIT} -t mangle -A FILTER_OUT_CLASH -d ${subnet} -j ACCEPT
+    done
+
+    if [ "${mode}" = "blacklist" ] ; then
+        for appuid in `cat ${APPUID_FILE} | sort -u` ; do
+            ${IPTABLES_WAIT} -t mangle -A FILTER_OUT_CLASH -m owner --uid-owner ${appuid} -j ACCEPT
+        done
+
+        ${IPTABLES_WAIT} -t mangle -A FILTER_OUT_CLASH -m owner ! --gid-owner ${CLASH_GROUP} -j CLASH_OUT
+    elif [ "${mode}" = "whitelist" ] ; then
+        for appuid in `cat ${APPUID_FILE} | sort -u` ; do
+            ${IPTABLES_WAIT} -t mangle -A FILTER_OUT_CLASH -m owner --uid-owner ${appuid} -j CLASH_OUT
+        done
+    fi
+}
+
+create_nat_prerouting_dns() {
+    ${IPTABLES_WAIT} -t nat -N DNS_PRE
+
+    ${IPTABLES_WAIT} -t nat -A DNS_PRE -p udp -j REDIRECT --to-ports ${CLASH_DNS_PORT}
+}
+
+create_nat_output_dns() {
+    ${IPTABLES_WAIT} -t nat -N DNS_OUT
+
+    ${IPTABLES_WAIT} -t nat -A DNS_OUT -p udp -j REDIRECT --to-ports ${CLASH_DNS_PORT}
+}
+
+create_nat_output_filter() {
+    ${IPTABLES_WAIT} -t nat -N FILTER_OUT_DNS
+
+    ${IPTABLES_WAIT} -t nat -A FILTER_OUT_DNS -m owner --gid-owner ${CLASH_GROUP} -j ACCEPT
+    ${IPTABLES_WAIT} -t nat -A FILTER_OUT_DNS -p udp --dport 53 -j DNS_OUT
+}
+
+create_nat_prerouting_filter() {
+    ${IPTABLES_WAIT} -t nat -N FILTER_PRE_DNS
+
+    ${IPTABLES_WAIT} -t nat -A FILTER_PRE_DNS -p udp --dport 53 -j DNS_PRE
+}
+
+creat_pre_divert() {
+    ${IPTABLES_WAIT} -t mangle -N DIVERT
+
+    ${IPTABLES_WAIT} -t mangle -A DIVERT -j MARK --set-mark ${mark_id}
+
+    ${IPTABLES_WAIT} -t mangle -A DIVERT -j ACCEPT
+}
+
+apply_rules() {
+    create_mangle_prerouting_chain
+    create_mangle_prerouting_filter
+
+    create_mangle_output_chain
+    create_mangle_output_filter
+    
+    create_nat_prerouting_dns
+    create_nat_prerouting_filter
+
+    create_nat_output_dns
+    create_nat_output_filter
+
+    creat_pre_divert
+    ${IPTABLES_WAIT} -t mangle -A PREROUTING -p tcp -m socket -j DIVERT
+    ${IPTABLES_WAIT} -t mangle -A PREROUTING -p udp -m socket -j DIVERT
+
+    ${IPTABLES_WAIT} -t mangle -N FILTER_LOCAL_IP
+    ${IPTABLES_WAIT} -t mangle -A PREROUTING -j FILTER_LOCAL_IP
+    ${IPTABLES_WAIT} -t mangle -A OUTPUT -j FILTER_LOCAL_IP
+
+    ${IPTABLES_WAIT} -t mangle -A PREROUTING -j FILTER_PRE_CLASH
+    ${IPTABLES_WAIT} -t mangle -A OUTPUT -j FILTER_OUT_CLASH
+
+    ${IPTABLES_WAIT} -t nat -A PREROUTING -j FILTER_PRE_DNS
+    ${IPTABLES_WAIT} -t nat -A OUTPUT -j FILTER_OUT_DNS
+
+    ${SCRIPTS_DIR}/clash.tool -m
+
+    echo "[info] : connected." >> ${CFM_LOGS_FILE}
+}
+
+flush_rules() {
+    ${IPTABLES_WAIT} -t nat -D OUTPUT -j FILTER_OUT_DNS
+    ${IPTABLES_WAIT} -t nat -D PREROUTING -j FILTER_PRE_DNS
+
+    ${IPTABLES_WAIT} -t mangle -D OUTPUT -j FILTER_OUT_CLASH
+    ${IPTABLES_WAIT} -t mangle -D PREROUTING -j FILTER_PRE_CLASH
+
+    ${IPTABLES_WAIT} -t mangle -D OUTPUT -j FILTER_LOCAL_IP
+    ${IPTABLES_WAIT} -t mangle -D PREROUTING -j FILTER_LOCAL_IP
+    ${IPTABLES_WAIT} -t mangle -F FILTER_LOCAL_IP
+    ${IPTABLES_WAIT} -t mangle -X FILTER_LOCAL_IP
+
+    ${IPTABLES_WAIT} -t mangle -D PREROUTING -p tcp -m socket -j DIVERT
+    ${IPTABLES_WAIT} -t mangle -F DIVERT
+    ${IPTABLES_WAIT} -t mangle -X DIVERT
+
+    ${IPTABLES_WAIT} -t nat -F FILTER_OUT_DNS
+    ${IPTABLES_WAIT} -t nat -X FILTER_OUT_DNS
+    ${IPTABLES_WAIT} -t nat -F DNS_OUT
+    ${IPTABLES_WAIT} -t nat -X DNS_OUT
+
+    ${IPTABLES_WAIT} -t nat -F FILTER_PRE_DNS
+    ${IPTABLES_WAIT} -t nat -X FILTER_PRE_DNS
+    ${IPTABLES_WAIT} -t nat -F DNS_PRE
+    ${IPTABLES_WAIT} -t nat -X DNS_PRE
+
+    ${IPTABLES_WAIT} -t mangle -F FILTER_OUT_CLASH
+    ${IPTABLES_WAIT} -t mangle -X FILTER_OUT_CLASH
+    ${IPTABLES_WAIT} -t mangle -F CLASH_OUT
+    ${IPTABLES_WAIT} -t mangle -X CLASH_OUT
+
+    ${IPTABLES_WAIT} -t mangle -F FILTER_PRE_CLASH
+    ${IPTABLES_WAIT} -t mangle -X FILTER_PRE_CLASH
+    ${IPTABLES_WAIT} -t mangle -F CLASH_PRE
+    ${IPTABLES_WAIT} -t mangle -X CLASH_PRE
+    
+    echo "[info] : disconnected." >> ${CFM_LOGS_FILE}
+}
+
+while getopts ":sk" signal ; do
+    case ${signal} in
+        s)
+            if [ "${mode}" = "blacklist" ] || [ "${mode}" = "whitelist" ] ; then
+                create_rule_rules && apply_rules
+            else
+                exit 0
+            fi
+            ;;
+        k)
+            if [ "${mode}" = "blacklist" ] || [ "${mode}" = "whitelist" ] ; then
+                flush_rule_rules && flush_rules
+            else
+                exit 0
+            fi
+            ;;
+        ?)
+            echo ""
+            ;;
+    esac
+done
