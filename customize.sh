@@ -15,16 +15,17 @@ DATA="${MODPATH}/clash"
 
 # installer checker
 if [[ $BOOTMODE != true ]]; then
-  abort "Error: Install in Magisk Manager."
+      abort "Error: Install in Magisk Manager."
 else
-  if [[ "$ARCH" == "arm64" ]]; then
-    if [ -d "${CLASH_DIR}" ]; then
-      ui_print "- Old data detected, make backup...."
-      mv ${CLASH_DIR} ${ADB_DIR}/clash_backup
-    fi
-  else  
-    abort "Error: Unsupported device."
-  fi
+      if [[ "$ARCH" == "arm64" ]]; then
+            # Only backup config data
+            if [[ -d "${CONFIG_DIR}" ]]; then
+                  ui_print "- make backup config data...."
+                  mv ${CONFIG_DIR} ${ADB_DIR}/config_bck
+            fi
+      else  
+            abort "Error: Unsupported device."
+      fi
 fi
 
 # prepare environment
@@ -41,7 +42,7 @@ mkdir -p ${MODPATH}${CA_PATH}
 ui_print "- Unzipping file."
 unzip -o "${ZIPFILE}" -x 'META-INF/*' -d $MODPATH >&2
 
-if [ ! -d ${SERVICE_DIR} ] ; then
+if [[ ! -d ${SERVICE_DIR} ]] ; then
   mkdir -p ${SERVICE_DIR}
 fi
 
@@ -62,7 +63,7 @@ rm -rf "${DATA}/scripts"
 # move config
 mv "${DATA}/config/_proxies" "${CONFIG_DIR}/"
 mv "${DATA}/config/_template" "${CONFIG_DIR}/"
-mv "${DATA}/config/akun.yaml" "${CONFIG_DIR}/"
+mv "${DATA}/config/account.yaml" "${CONFIG_DIR}/"
 mv "${DATA}/config/Country.mmdb" "${CONFIG_DIR}/"
 mv "${DATA}/config/GeoIP.dat" "${CONFIG_DIR}/"
 mv "${DATA}/config/GeoSite.dat" "${CONFIG_DIR}/"
@@ -85,11 +86,20 @@ mv "${DATA}/additional/cacert.pem" "${MODPATH}${CA_PATH}"
 mv "${DATA}/additional/resolv.conf" "${MODPATH}${DNS_PATH}/"
 rm -rf "${DATA}/additional"
 
-if [ ! -f "${CLASH_DIR}/packages.list" ] ; then
+if [[ ! -f "${CLASH_DIR}/packages.list" ]] ; then
     touch ${CLASH_DIR}/packages.list
 fi
 sleep 1
 rm -rf ${DATA}
+
+# replace config backup to config dir if exist
+if [[ -d "${ADB_DIR}/config_bck" ]]; then
+   ui_print "- applied config data old...."
+   rm -rf ${CONFIG_DIR}
+   mv ${ADB_DIR}/config_bck ${CONFIG_DIR}
+   rm -rf ${ADB_DIR}/config_bck
+fi
+
 ui_print "- Setup permission."
 set_perm_recursive ${MODPATH} 0 0 0755 0644
 set_perm_recursive ${CONFIG_DIR} 0 0 0644 0644

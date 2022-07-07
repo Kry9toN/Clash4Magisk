@@ -1,7 +1,7 @@
 id=ClashMeta4Magisk
 name=Clash [Meta] 4 Magisk
-version=1.12.2
-versionCode=20220705
+version=1.12.3
+versionCode=20220707
 author=• Riffchz •
 description= Clash meta core with service scripts for Android 
 updateJson=https://raw.githubusercontent.com/riffchz/ClashforMagisk/myalpha/update.json
