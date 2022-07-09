@@ -4,4 +4,4 @@ version=1.12.6
 versionCode=20220707
 author=Kry9toN
 description= Clash meta core with service scripts for Android 
-updateJson=https://raw.githubusercontent.com/Kry9toN/Clashf4Magisk/master/update.json
+updateJson=https://raw.githubusercontent.com/Kry9toN/Clash4Magisk/master/update.json
