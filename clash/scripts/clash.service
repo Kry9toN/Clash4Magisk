@@ -73,28 +73,21 @@ start_clash() {
 
     chown ${CLASH_USER_GROUP} ${CLASH_CONFIG_FILE} && chmod 0644 ${CLASH_CONFIG_FILE}
     if [ -f ${CLASH_CONFIG_FILE} ] ; then
-        if ${CLASH_BIN_PATH} -d ${CLASH_CONFIG_DIR} -t -f ${CLASH_CONFIG_FILE} | grep -q 'scripts success...'; then
-        	if ${CLASH_BIN_PATH} -d ${CLASH_CONFIG_DIR} -t -f ${CLASH_CONFIG_FILE} | grep -q 'test is successful'; then
-        	    echo "[info] : test config success" >> ${CFM_LOGS_FILE}
-        	    if [[ "${SHOW_KERNEL_LOG}" == "true" ]]; then
-                    nohup ${BUSYBOX_PATH} setuidgid 0:3005 ${CLASH_BIN_PATH} -d ${CLASH_CONFIG_DIR} -f ${CLASH_CONFIG_FILE} &>> ${CLASH_RUN_PATH}/kernel.log &
-                else
-                    nohup ${BUSYBOX_PATH} setuidgid 0:3005 ${CLASH_BIN_PATH} -d ${CLASH_CONFIG_DIR} -f ${CLASH_CONFIG_FILE} > /dev/null 2>&1 &
-                fi
-                echo -n $! > ${CLASH_PID_FILE}
-                echo "[info] : clash started." >> ${CFM_LOGS_FILE}
-                rm -f ${CLASH_DATA_DIR}/config_error.log
-        	else
-        		${CLASH_BIN_PATH} -d ${CLASH_CONFIG_DIR} -t -f ${CLASH_CONFIG_FILE} >> ${CLASH_DATA_DIR}/config_error.log
-        		echo "[err] : load config failed check log at ${CLASH_DATA_DIR}" >> ${CFM_LOGS_FILE}
-        		touch ${MODUL_DIR}/disable
-           		exit 1
+        if ${CLASH_BIN_PATH} -d ${CLASH_CONFIG_DIR} -t -f ${CLASH_CONFIG_FILE} | grep -q 'test is successful'; then
+            echo "[info] : test config success" >> ${CFM_LOGS_FILE}
+            if [[ "${SHOW_KERNEL_LOG}" == "true" ]]; then
+                nohup ${BUSYBOX_PATH} setuidgid 0:3005 ${CLASH_BIN_PATH} -d ${CLASH_CONFIG_DIR} -f ${CLASH_CONFIG_FILE} &>> ${CLASH_RUN_PATH}/kernel.log &
+            else
+                nohup ${BUSYBOX_PATH} setuidgid 0:3005 ${CLASH_BIN_PATH} -d ${CLASH_CONFIG_DIR} -f ${CLASH_CONFIG_FILE} > /dev/null 2>&1 &
             fi
+            echo -n $! > ${CLASH_PID_FILE}
+            echo "[info] : clash started." >> ${CFM_LOGS_FILE}
+            rm -f ${CLASH_DATA_DIR}/config_error.log
         else
-        	echo "[err] : load kernel & scripts error" >> ${CFM_LOGS_FILE}
-        	echo "[warn] : dont edit scripts" >> ${CFM_LOGS_FILE}
-        	touch ${MODUL_DIR}/disable
-        	exit 1
+            ${CLASH_BIN_PATH} -d ${CLASH_CONFIG_DIR} -t -f ${CLASH_CONFIG_FILE} >> ${CLASH_DATA_DIR}/config_error.log
+            echo "[err] : load config failed check log at ${CLASH_DATA_DIR}" >> ${CFM_LOGS_FILE}
+            touch ${MODUL_DIR}/disable
+            exit 1
         fi
     fi
 }
