@@ -1,8 +1,11 @@
 # Env
 VERSION=v1.12.6
+OUTDIR=out
 
 # Create output folder
-mkdir out
+if [[ ! -d ${OUTDIR} ]] ; then
+  mkdir -p ${OUTDIR}
+fi
 
 # Initial build dashboard yach
 cd yacd-meta
