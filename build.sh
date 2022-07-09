@@ -6,6 +6,9 @@ mkdir out
 
 # Initial build dashboard yach
 cd yacd-meta
+git submodule update --remote
+
+# Install npm i -g pnpm
 pnpm i
 pnpm build
 cp -r public ..
