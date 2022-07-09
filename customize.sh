@@ -127,6 +127,4 @@ set_perm  ${SERVICE_DIR}/clash_service.sh  0 0 0755
 set_perm  ${CLASH_DIR}/packages.list 0 0 0644
 set_perm  ${CLASH_DIR}/clash_settings.ini 0 0 0644
 
-ui_print "- Done"
-ui_print ""
-ui_print "Thanks to kalasutra & riffchz"
+ui_print "- Thanks to kalasutra & riffchz"
