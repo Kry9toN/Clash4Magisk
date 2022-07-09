@@ -1,5 +1,5 @@
 # Env
-VERSION=v1.12.4
+VERSION=v1.12.6
 
 # Create output folder
 mkdir out
