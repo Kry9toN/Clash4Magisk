@@ -1,3 +1,3 @@
-# Clash Meta for Magisk
-  - Using core meta build by me
+# Clash4Magisk
+  - Using core build by taamarin
   - Only for arm64 for now

@@ -1,6 +1,6 @@
 #!/system/bin/sh
 
-MOD_DIR="/data/adb/modules/ClashMeta4Magisk"
+MOD_DIR="/data/adb/modules/Clash4Magisk"
 
 CLASH_DIR="/data/adb/clash"
 SCRIPTS_DIR="${CLASH_DIR}/scripts"

@@ -1,7 +1,7 @@
 #!/system/bin/sh
 . /data/adb/clash/clash_settings.ini
 ######################
-##  ADVANCE SETTINGS    
+##  ADVANCE SETTINGS
 ######################
 # dont change anything here if u dont understand!!!
 
@@ -19,8 +19,8 @@ DATE_DAY=`date "+%a %b %d [%R:%M] %Z %Y"`
 ADB_DIR="/data/adb"
 CLASH_DATA_DIR="${ADB_DIR}/clash"
 BUSYBOX_PATH="${ADB_DIR}/magisk/busybox"
-BINARY_DIR="${ADB_DIR}/modules/ClashMeta4Magisk/system/bin"
-MODUL_DIR="${ADB_DIR}/modules/ClashMeta4Magisk"
+BINARY_DIR="${ADB_DIR}/modules/Clash4Magisk/system/bin"
+MODUL_DIR="${ADB_DIR}/modules/Clash4Magisk"
 SYSTEM_PACKAGES_FILE="/data/system/packages.list"
 
 CLASH_CONFIG_DIR="${CLASH_DATA_DIR}/config"

@@ -1,0 +1,3 @@
+[submodule "yacd-meta"]
+	path = yacd-meta
+	url = https://github.com/taamarin/yacd-meta

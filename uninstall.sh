@@ -3,4 +3,4 @@ rm_clash() {
 }
 
 rm_clash
-rm -f /data/adb/service.d/ClashMeta.sh
+rm -f /data/adb/service.d/clash_service.sh

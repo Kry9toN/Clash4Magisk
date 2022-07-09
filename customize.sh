@@ -13,6 +13,17 @@ GEO_PATH="${CLASH_DIR}/Country.mmdb"
 SERVICE_DIR="${ADB_DIR}/service.d"
 DATA="${MODPATH}/clash"
 
+ui_print "
+╭━━━┳╮╱╱╱╱╱╱╭╮╱╭╮╱╭┳━╮╭━╮╱╱╱╱╱╱╱╱╱╭╮
+┃╭━╮┃┃╱╱╱╱╱╱┃┃╱┃┃╱┃┃┃╰╯┃┃╱╱╱╱╱╱╱╱╱┃┃
+┃┃╱╰┫┃╭━━┳━━┫╰━┫╰━╯┃╭╮╭╮┣━━┳━━┳┳━━┫┃╭╮
+┃┃╱╭┫┃┃╭╮┃━━┫╭╮┣━━╮┃┃┃┃┃┃╭╮┃╭╮┣┫━━┫╰╯╯
+┃╰━╯┃╰┫╭╮┣━━┃┃┃┃╱╱┃┃┃┃┃┃┃╭╮┃╰╯┃┣━━┃╭╮╮
+╰━━━┻━┻╯╰┻━━┻╯╰╯╱╱╰┻╯╰╯╰┻╯╰┻━╮┣┻━━┻╯╰╯
+╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╭━╯┃
+╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╰━━╯"
+ui_print ""
+
 # installer checker
 if [[ $BOOTMODE != true ]]; then
       abort "Error: Install in Magisk Manager."
@@ -20,16 +31,16 @@ else
       if [[ "$ARCH" == "arm64" ]]; then
             # Only backup config data
             if [[ -d "${CONFIG_DIR}" ]]; then
-                  ui_print "- make backup config data...."
-                  mv ${CONFIG_DIR} ${ADB_DIR}/config_bck
+                  ui_print "- Make backup config data...."
+                  mv ${CONFIG_DIR} ${ADB_DIR}/old.bk
             fi
-      else  
+      else
             abort "Error: Unsupported device."
       fi
 fi
 
 # prepare environment
-ui_print "- Prepare Clash[Meta] 4 Magisk Execute Environment."
+ui_print "- Prepare Clash for Magisk Execute Environment."
 mkdir -p ${CLASH_DIR}
 mkdir -p ${CORE_DIR}
 mkdir -p ${CONFIG_DIR}
@@ -47,7 +58,7 @@ if [[ ! -d ${SERVICE_DIR} ]] ; then
 fi
 
 # move service
-mv ${MODPATH}/ClashMeta.sh ${SERVICE_DIR}/
+mv ${MODPATH}/clash_service.sh ${SERVICE_DIR}/
 
 ui_print "- Setup data."
 # move scripts
@@ -78,8 +89,7 @@ mv "${DATA}/core/ss" "${MODPATH}/system/bin/"
 rm -rf "${DATA}/core"
 
 # move dashboard
-unzip ${DATA}/dashboard.zip -d ${CONFIG_DIR} >&2
-rm -f ${DATA}/dashboard.zip
+mv ${MODPATH}/public ${CONFIG_DIR}
 
 # move additional
 mv "${DATA}/additional/cacert.pem" "${MODPATH}${CA_PATH}"
@@ -93,17 +103,17 @@ sleep 1
 rm -rf ${DATA}
 
 # replace config backup to config dir if exist
-if [[ -d "${ADB_DIR}/config_bck" ]]; then
-   ui_print "- applied config data old...."
+if [[ -d "${ADB_DIR}/old.bk" ]]; then
+   ui_print "- Applied config data old...."
    rm -rf ${CONFIG_DIR}
-   mv ${ADB_DIR}/config_bck ${CONFIG_DIR}
-   rm -rf ${ADB_DIR}/config_bck
+   mv ${ADB_DIR}/old.bk ${CONFIG_DIR}
+   rm -rf ${ADB_DIR}/old.bk
 fi
 
 ui_print "- Setup permission."
 set_perm_recursive ${MODPATH} 0 0 0755 0644
 set_perm_recursive ${CONFIG_DIR} 0 0 0644 0644
-set_perm_recursive ${CONFIG_DIR}/dashboard 0 0 0644 0644
+set_perm_recursive ${CONFIG_DIR}/public 0 0 0644 0644
 set_perm_recursive ${CORE_DIR} 0 3005 0755 0755
 set_perm_recursive ${SCRIPT_DIR} 0 3005 0755 0755
 
@@ -113,6 +123,6 @@ set_perm  ${MODPATH}/system/bin/getpcaps  0  0  0755
 set_perm  ${MODPATH}/system/bin/ss  0  0  0755
 set_perm  ${MODPATH}${CA_PATH}/cacert.pem 0 0 0644
 set_perm  ${MODPATH}${DNS_PATH}/resolv.conf 0 0 0644
-set_perm  ${SERVICE_DIR}/ClashMeta.sh  0 0 0755
+set_perm  ${SERVICE_DIR}/clash_service.sh  0 0 0755
 set_perm  ${CLASH_DIR}/packages.list 0 0 0644
 set_perm  ${CLASH_DIR}/clash_settings.ini 0 0 0644
