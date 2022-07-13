@@ -1,9 +1,9 @@
 # Env
-VERSION=v1.12.6
+VERSION=v1.12.7
 OUTDIR=out
 
 # Create output folder
-if [[ ! -d ${OUTDIR} ]] ; then
+if [ ! -d ${OUTDIR} ]; then
   mkdir -p ${OUTDIR}
 fi
 
