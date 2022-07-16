@@ -1,7 +1,7 @@
 id=Clash4Magisk
 name=Clash for Magisk
-version=1.12.7
-versionCode=10120708
+version=1.12.9
+versionCode=101209012
 author=Kry9toN
 description= Clash meta core with service scripts for Android 
 updateJson=https://raw.githubusercontent.com/Kry9toN/Clash4Magisk/master/update.json

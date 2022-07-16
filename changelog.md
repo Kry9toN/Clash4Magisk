@@ -7,3 +7,7 @@
     - Used Core Clash Meta alpha
   - v1.12.7
     - Support random strategy on load balance 
+  - v1.12.9
+    - Update last core meta
+    - moar optimize core code
+    - fix some bug
