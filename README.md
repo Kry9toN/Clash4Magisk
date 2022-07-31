@@ -4,10 +4,10 @@
   <br>Clash<br>
 </h1>
 
-<h4 align="center">Clash for Magisk is module based on shell script to control <a href="https://github.com/Dreamacro/clash">Clash</a> service and manage such like tproxy(Transparent proxy), uid-based black, and white list function, or you just want to start the Clash process alone.</h4>
+<p align="center">Clash for Magisk is module based on shell script to control <a href="https://github.com/Dreamacro/clash">Clash</a> service and manage such like tproxy(Transparent proxy), uid-based black, and white list function, or you just want to start the Clash process alone.</p>
 
-## flash module
-  - Install via Magisk Manager.
+## How to install
+  - Download on [release](https://github.com/Kry9toN/Clash4Magisk/releases) and install via Magisk Manager.
 
 ## Configure
   Root directory: ```/data/adb/clash/```
