@@ -34,3 +34,6 @@
   - [riffchz](https://github.com/riffchz/ClashforMagisk)
   - [MagiskChangeKing](https://t.me/MagiskChangeKing)
   - [e58695](https://t.me/e58695)
+
+## License
+  [GNU General Public License v3.0](https://github.com/Kry9toN/Clash4Magisk/blob/master/LICENSE.md)
