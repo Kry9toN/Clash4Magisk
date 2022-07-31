@@ -1,3 +1,6 @@
 [submodule "yacd-meta"]
 	path = yacd-meta
 	url = https://github.com/taamarin/yacd-meta
+[submodule "clash-core"]
+	path = clash-core
+	url = https://github.com/Kry9toN/clash

@@ -7,14 +7,22 @@ if [ ! -d ${OUTDIR} ]; then
   mkdir -p ${OUTDIR}
 fi
 
+# Update sub module
+git submodule update --remote
+
 # Initial build dashboard yach
 cd yacd-meta
-git submodule update --remote
 
 # Install npm i -g pnpm
 pnpm i
 pnpm build
 cp -r public ..
+cd ..
+
+# Build core
+cd clash-core
+make android-arm64
+mv bin/Clash* ../clash/core/clash
 cd ..
 
 # Zipping clash
