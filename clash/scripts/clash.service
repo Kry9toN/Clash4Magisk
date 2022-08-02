@@ -100,13 +100,24 @@ stop_clash() {
     fi
 }
 
-while getopts ":sk" signal ; do
+test_config() {
+    if ${CLASH_BIN_PATH} -d ${CLASH_CONFIG_DIR} -t -f ${CLASH_CONFIG_FILE} | grep -q 'test is successful'; then
+        exit 0
+    else
+        exit 1
+    fi
+}
+
+while getopts ":skt" signal ; do
     case ${signal} in
         s)
             start_clash
             ;;
         k)
             stop_clash
+            ;;
+        t)
+            test_config
             ;;
         ?)
             echo ""
