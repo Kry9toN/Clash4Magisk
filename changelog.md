@@ -1,5 +1,9 @@
 ---
 ## Changelogs
+  - v1.13.0
+    - Supported WSS
+    - Add new flag to test config
+    - and other optimization
   - v1.12.6
     - Initial release
     - Update config
