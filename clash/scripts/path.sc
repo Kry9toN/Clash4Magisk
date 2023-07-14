@@ -1,5 +1,6 @@
 #!/system/bin/sh
 . /data/adb/clash/clash_settings.ini
+export PATH="/data/adb/magisk:/data/adb/ksu/bin:$PATH:/data/data/com.termux/files/usr/bin"
 ######################
 ##  ADVANCE SETTINGS
 ######################
@@ -18,7 +19,6 @@ DATE_DAY=`date "+%a %b %d [%R:%M] %Z %Y"`
 
 ADB_DIR="/data/adb"
 CLASH_DATA_DIR="${ADB_DIR}/clash"
-BUSYBOX_PATH="${ADB_DIR}/magisk/busybox"
 BINARY_DIR="${ADB_DIR}/modules/Clash4Magisk/system/bin"
 MODUL_DIR="${ADB_DIR}/modules/Clash4Magisk"
 SYSTEM_PACKAGES_FILE="/data/system/packages.list"

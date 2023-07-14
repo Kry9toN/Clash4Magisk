@@ -36,7 +36,7 @@ start_clash() {
         chmod ${CLASH_PERMISSIONS} ${CLASH_BIN_PATH}
         ${BINARY_DIR}/setcap 'cap_net_admin,cap_net_raw+ep' ${CLASH_BIN_PATH}
 
-        ${BUSYBOX_PATH} crontab -c ${CLASH_RUN_PATH} -r
+        busybox crontab -c ${CLASH_RUN_PATH} -r
         touch ${CLASH_RUN_PATH}/root
         chmod 0600 ${CLASH_RUN_PATH}/root
 
@@ -76,9 +76,9 @@ start_clash() {
         if ${CLASH_BIN_PATH} -d ${CLASH_CONFIG_DIR} -t -f ${CLASH_CONFIG_FILE} | grep -q 'test is successful'; then
             echo "[info] : test config success" >> ${CFM_LOGS_FILE}
             if [[ "${SHOW_KERNEL_LOG}" == "true" ]]; then
-                nohup ${BUSYBOX_PATH} setuidgid 0:3005 ${CLASH_BIN_PATH} -d ${CLASH_CONFIG_DIR} -f ${CLASH_CONFIG_FILE} &>> ${CLASH_RUN_PATH}/kernel.log &
+                nohup busybox setuidgid 0:3005 ${CLASH_BIN_PATH} -d ${CLASH_CONFIG_DIR} -f ${CLASH_CONFIG_FILE} &>> ${CLASH_RUN_PATH}/kernel.log &
             else
-                nohup ${BUSYBOX_PATH} setuidgid 0:3005 ${CLASH_BIN_PATH} -d ${CLASH_CONFIG_DIR} -f ${CLASH_CONFIG_FILE} > /dev/null 2>&1 &
+                nohup busybox setuidgid 0:3005 ${CLASH_BIN_PATH} -d ${CLASH_CONFIG_DIR} -f ${CLASH_CONFIG_FILE} > /dev/null 2>&1 &
             fi
             echo -n $! > ${CLASH_PID_FILE}
             echo "[info] : clash started." >> ${CFM_LOGS_FILE}
