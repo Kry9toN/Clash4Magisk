@@ -1,7 +1,7 @@
 id=Clash4Magisk
 name=Clash for Magisk
-version=1.13.0
-versionCode=101300022
+version=1.13.4
+versionCode=101304051
 author=Kry9toN
 description=Clash meta core with service scripts for Android.
 donate=https://saweria.co/Kry9toN
