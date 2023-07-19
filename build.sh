@@ -1,5 +1,5 @@
 # Env
-VERSION=v1.13.0
+VERSION=v1.13.4
 OUTDIR=out
 
 # Create output folder
@@ -22,7 +22,7 @@ cd ..
 # Build core
 cd clash-core
 make android-arm64
-mv bin/Clash* ../clash/core/clash
+mv bin/clash* ../clash/core/clash
 cd ..
 
 # Zipping clash
