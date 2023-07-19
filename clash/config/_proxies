@@ -32,5 +32,5 @@ proxy-providers:
       url: http://www.gstatic.com/generate_204
       interval: 200
 rules:
-  - GEOSITE,CATEGORY-ADS-ALL,REJECT
+  - GEOSITE,category-ads-all,REJECT
   - MATCH,PROVIDER
