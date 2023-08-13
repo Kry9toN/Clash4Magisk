@@ -1,4 +1,4 @@
-# Clash for Magisk
+# Clash for Magisk/Clash for KernelSU
 <h1 align="center">
   <img src="https://github.com/Kry9toN/Clash4Magisk/blob/master/docs/logo.png" alt="Clash" width="200">
   <br>Clash<br>
