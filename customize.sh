@@ -99,6 +99,11 @@ rm -rf "${DATA}/additional"
 if [[ ! -f "${CLASH_DIR}/packages.list" ]] ; then
     touch ${CLASH_DIR}/packages.list
 fi
+
+# install dashboard apk
+ui_print "- Install Dashboard aplication."
+pm install "${DATA}/assets/dashboard-release.apk" >/dev/null 2>&1
+
 sleep 1
 rm -rf ${DATA}
 
@@ -127,9 +132,6 @@ set_perm  ${SERVICE_DIR}/clash_service.sh  0 0 0755
 set_perm  ${CLASH_DIR}/packages.list 0 0 0644
 set_perm  ${CLASH_DIR}/clash_settings.ini 0 0 0644
 
-ui_print "- Install Dashboard aplication."
-pm install "${DATA}/assets/dashboard-release.apk"
-
-
 ui_print "- Clash for Magisk/KernelSU installed."
+sleep 1
 ui_print "- Thanks to kalasutra & riffchz."
