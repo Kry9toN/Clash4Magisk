@@ -1,4 +1,4 @@
-# Clash for Magisk/Clash for KernelSU
+# Clash for Magisk/KernelSU
 <h1 align="center">
   <img src="https://github.com/Kry9toN/Clash4Magisk/blob/master/docs/logo.png" alt="Clash" width="200">
   <br>Clash<br>
@@ -23,10 +23,7 @@
   - ```packages.list``` Black and white list filter list, fill in the package name.
 
 ## How to use
-  - Start and stop the Clash by disabling and enabling the module, or use the Dashboard software
-
-## Question
-  - Apk for manage is comming soon
+  - Start and stop the Clash by disabling and enabling the module, or use the [Dashboard apps](https://github.com/Kry9toN/CFM-Dashboard)
 
 ## Credits
   - [kalasutra/Clash_for_magisk](https://github.com/kalasutra/Clash_For_Magisk)
