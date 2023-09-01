@@ -127,6 +127,46 @@ port_detection() {
     fi
 }
 
+update_file() {
+    file="$1"
+    file_bak="${file}.bak"
+    update_url="$2"
+    if [ -f ${file} ] ; then
+      mv -f ${file} ${file_bak}
+    fi
+    echo "busybox wget --no-check-certificate ${update_url} -o ${file}"
+    busybox wget --no-check-certificate ${update_url} -O ${file} 2>&1
+    sleep 0.5
+    if [ -f "${file}" ] ; then
+      echo ""
+    else
+      if [ -f "${file_bak}" ] ; then
+        mv ${file_bak} ${file}
+      fi
+    fi
+}
+
+update_geo() {
+  if [ "${AUTO_UPDATE_GEOX}" == "true" ] ; then
+     update_file ${CLASH_GEOIP_FILE} ${CLASH_GEOIP_URL}
+     update_file ${CLASH_GEOSITE_FILE} ${CLASH_GEOSITE_URL}
+     if [ "$?" = "0" ] ; then
+       flag=false
+     fi
+  fi
+
+  if [ ${AUTO_SUBSCRIPTION} == "true" ] ; then
+     update_file ${CLASH_CONFIG_FILE} ${SUBSCRIPTION_URL}
+     if [ "$?" = "0" ] ; then
+       flag=true
+     fi
+  fi
+
+  if [ -f "${CLASH_PID_FILE}" ] && [ ${flag} == true ] ; then
+    restart_clash
+  fi
+}
+
 while getopts ":kfmps" signal ; do
     case ${signal} in
         s)
@@ -155,8 +195,12 @@ while getopts ":kfmps" signal ; do
             sleep 
             port_detection
             ;;
+        u)
+            update_geo
+            rm -rf ${CLASH_CONFIG_DIR}/*dat.bak && exit 1
+            ;;
         ?)
-            echo "Usage: {s|k|f|m|p}"
+            echo "Usage: {s|k|f|m|p|u}"
             ;;
     esac
 done
