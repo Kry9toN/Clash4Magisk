@@ -13,6 +13,7 @@ table_id="2022"
 mode="blacklist"
 
 AUTO_UPDATE_CONFIG="true"
+AUTO_UPDATE_GEOX="false"
 UPDATE_INTERVAL="0 2 * * *"
 
 DATE_DAY=`date "+%a %b %d [%R:%M] %Z %Y"`
@@ -38,6 +39,9 @@ CLASH_BIN_PATH="${CLASH_DATA_DIR}/core/${CORE_NAME}"
 
 CLASH_CONFIG_FILE="${CLASH_CONFIG_DIR}/${CONFIG_NAME}"
 CLASH_GEOIP_FILE="${CLASH_CONFIG_DIR}/Country.mmdb"
+CLASH_GEOIP_URL="https://github.com/Loyalsoldier/geoip/raw/release/Country.mmdb"
+CLASH_GEOSITE_FILE="${CLASH_CONFIG_DIR}/GeoSite.dat"
+CLASH_GEOSITE_URL="https://github.com/CHIZI-0618/v2ray-rules-dat/raw/release/geosite.dat"
 FILTER_PACKAGES_FILE="${CLASH_DATA_DIR}/packages.list"
 
 AUTO_SUBSCRIPTION="false"
