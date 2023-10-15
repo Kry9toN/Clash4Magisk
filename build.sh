@@ -1,5 +1,5 @@
 # Env
-VERSION=v1.14.5
+VERSION=v1.14.6
 OUTDIR=out
 
 # Create output folder
